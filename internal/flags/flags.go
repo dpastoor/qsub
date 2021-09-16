@@ -21,11 +21,19 @@ type FlagSet struct {
 }
 
 func (f FlagSet) MarshalJSON() ([]byte, error) {
+	// since this is a struct we can't just use the json.Marshal() function
+	// else it will marshal with empty information but not omit it
+	// therefore we need to use a pointer which we can set to nil
+	// to omit the field
+	pe := &f.ParallelEnvironment
+	if !pe.IsSet() {
+		pe = nil
+	}
 	j, err := json.Marshal(struct {
-		CurrentWorkingDirectory bool   `json:",omitempty" flags:"cwd"`
-		PropogateEnvVars        bool   `json:",omitempty" flags:"V"`
-		ParallelEnvironment     PEFlag `json:",omitempty" flags:"pe"`
-		Name                    string `json:",omitempty" flags:"N"`
+		CurrentWorkingDirectory bool    `json:",omitempty" flags:"cwd"`
+		PropogateEnvVars        bool    `json:",omitempty" flags:"V"`
+		ParallelEnvironment     *PEFlag `json:",omitempty" flags:"pe"`
+		Name                    string  `json:",omitempty" flags:"N"`
 		// The option -j oe will merge stderr into stdout (and hence the -e option does not make sense),
 		// the option -j eo will merge stdout into stderr.
 		// TODO: if using this, prob worth making another custom flag type
@@ -33,7 +41,7 @@ func (f FlagSet) MarshalJSON() ([]byte, error) {
 	}{
 		CurrentWorkingDirectory: f.CurrentWorkingDirectory.IsSet(),
 		PropogateEnvVars:        f.PropogateEnvVars.IsSet(),
-		ParallelEnvironment:     f.ParallelEnvironment,
+		ParallelEnvironment:     pe,
 		Name:                    f.Name.Value,
 		JoinStreams:             f.JoinStreams.Value,
 	})
