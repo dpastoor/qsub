@@ -1,10 +1,9 @@
 # qsub
 
+extremely WIP - will solifidy quickly - goal is to mock qsub for testing grid execution without the grid
+
 ## Installation
-```
-brew tap tech-solutions/homebrew-tap git@ghe.metrumrg.com:tech-solutions/homebrew-tap.git
-brew update
-brew install qsub
-```
+
+Nothing yet
 
 ## Usage
