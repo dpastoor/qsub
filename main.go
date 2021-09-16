@@ -36,10 +36,6 @@ import (
 )
 
 func main() {
-	for _, arg := range os.Args[1:] {
-		fmt.Println(arg)
-	}
-
 	res, err := parser.ParseArgs(os.Args[1:])
 	if err != nil {
 		log.Fatal(err)
@@ -47,9 +43,10 @@ func main() {
 	flagSet := &flags.FlagSet{}
 	sfs := structs.New(flagSet)
 	names := sfs.Names()
+	// TODO: should provide mode to enforce strict flags where only flags set
+	// should be those understandable to qsub
 	for _, name := range names {
 		fld := sfs.Field(name)
-		fmt.Printf("%s: %v, %v\n", name, fld.Value(), fld.Kind())
 		// gotta dereference here
 		tag, _ := reflect.TypeOf(*flagSet).FieldByName(fld.Name())
 		// ... and start using structtag by parsing the tag
@@ -71,7 +68,7 @@ func main() {
 			v := flags.PEFlag{}
 			err = v.SetValue(val)
 			if err != nil {
-				fmt.Println("could not set PEFlag")
+				fmt.Printf("could not set parallel environment `%s` \n", val)
 				log.Fatal(err)
 			}
 			err = fld.Set(v)
@@ -105,11 +102,9 @@ func main() {
 			}
 		}
 
-		fmt.Println(val)
 	}
-	fmt.Println(flagSet)
 	fmt.Println(prettyJson(flagSet))
-	fmt.Println(prettyJson(res))
+	//fmt.Println(prettyJson(res))
 }
 
 func prettyJson(data interface{}) string {
