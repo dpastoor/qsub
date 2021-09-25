@@ -89,3 +89,16 @@ func (f *PEFlag) IsSet() bool {
 func (f PEFlag) MarshalJSON() ([]byte, error) {
 	return json.Marshal(f.Value)
 }
+
+func (f *PEFlag) UnMarshalJSON(data []byte) error {
+	var pec ParallelConfig
+	if err := json.Unmarshal(data, &pec); err != nil {
+		return err
+	}
+	if pec.Name == "" || pec.Slots == 0 {
+		f.isSet = false
+		f.Value = pec
+	}
+
+	return nil
+}
