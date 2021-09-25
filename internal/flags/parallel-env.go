@@ -95,7 +95,9 @@ func (f *PEFlag) UnMarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &pec); err != nil {
 		return err
 	}
-	if pec.Name == "" || pec.Slots == 0 {
+	// honestly not sure what an unmarshalled default of pec.Name
+	// would be without testing
+	if pec.Name == undefined || pec.Slots == 0 {
 		f.isSet = false
 		f.Value = pec
 	}
