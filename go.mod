@@ -1,4 +1,4 @@
-module qsub
+module github.com/metrumresearchgoup/qsub
 
 go 1.16
 
