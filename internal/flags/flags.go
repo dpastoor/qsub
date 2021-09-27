@@ -6,10 +6,10 @@ import (
 
 func NewValidatorMap() map[string]func(string) error {
 	return map[string]func(string) error{
-		"cwd": validators.IsBoolFlag,
-		"pe":  validators.IsParallelEnvironment,
-		"N":   validators.IsName,
-		"j":   validators.IsJoinStreams,
-		"V":   validators.IsBoolFlag,
+		"cwd": validators.IsValidBoolFlag,
+		"pe":  validators.IsValidParallelEnvironment,
+		"N":   validators.IsValidName,
+		"j":   validators.IsValidJoinStreams,
+		"V":   validators.IsValidBoolFlag,
 	}
 }

@@ -1,5 +1,12 @@
 package parser
 
+import (
+	"errors"
+	"fmt"
+	"strconv"
+	"strings"
+)
+
 type PEName int64
 
 const (
@@ -28,17 +35,35 @@ func (p PEName) MarshalText() ([]byte, error) {
 	return []byte(p.String()), nil
 }
 
-func ParseParallelEnvironment(v string) PEName {
+func checkParallelEnvironment(v string) error {
 	switch v {
-	case "orte":
-		return orte
-	case "smp":
-		return smp
+	case "orte", "smp":
+		return nil
 	}
-	return undefined
+	return fmt.Errorf("parallel environment must be either orte or smp, not %s", v)
+}
+
+func ParseParallelEnvironment(pe string) (ParallelConfig, error) {
+
+	fields := strings.Fields(pe)
+	if len(fields) != 2 {
+		return ParallelConfig{}, errors.New("parallel environment should only have two fields, the environment and core count")
+	}
+	err := checkParallelEnvironment(fields[0])
+	if err != nil {
+		return ParallelConfig{}, err
+	}
+	i, err := strconv.Atoi(fields[1])
+	if err != nil || i < 1 {
+		return ParallelConfig{}, fmt.Errorf("invalid slot configuration - must be an integer > 0, not %s", fields[1])
+	}
+	return ParallelConfig{
+		Name:  fields[0],
+		Slots: i,
+	}, nil
 }
 
 type ParallelConfig struct {
-	Name  PEName
+	Name  string
 	Slots int
 }

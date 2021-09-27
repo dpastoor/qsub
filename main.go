@@ -28,16 +28,45 @@ import (
 	"log"
 	"os"
 
+	"github.com/metrumresearchgroup/qsub/internal/flags"
 	"github.com/metrumresearchgroup/qsub/internal/parser"
 )
 
 func main() {
+	vm := flags.NewValidatorMap()
 	res, err := parser.ParseArgs(os.Args[1:])
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	var invalidFlags []string
+	var failedValidations []error
+	hasFailure := false
+	for f, v := range res.Flags {
+		valfunc, ok := vm[f]
+		if !ok {
+			invalidFlags = append(invalidFlags, f)
+			hasFailure = true
+			continue
+		}
+		if err := valfunc(v); err != nil {
+			failedValidations = append(failedValidations, err)
+			hasFailure = true
+		}
+	}
+	if len(invalidFlags) > 0 {
+		for _, f := range invalidFlags {
+			fmt.Printf("invalid flag: %s\n", f)
+		}
+	}
+	if len(failedValidations) > 0 {
+		for _, f := range failedValidations {
+			fmt.Printf("%s\n", f.Error())
+		}
+	}
 	fmt.Println(prettyJson(res))
+	if hasFailure {
+		os.Exit(1)
+	}
 }
 
 func prettyJson(data interface{}) string {
